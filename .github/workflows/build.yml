@@ -1,0 +1,51 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Snowfall.app (universal)
+        run: |
+          swift build -c release --arch arm64 --arch x86_64
+          APP=Snowfall.app
+          mkdir -p "$APP/Contents/MacOS"
+          cp .build/apple/Products/Release/Snowfall "$APP/Contents/MacOS/Snowfall"
+          cat > "$APP/Contents/Info.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key><string>Snowfall</string>
+            <key>CFBundleIdentifier</key><string>local.snowfall</string>
+            <key>CFBundleExecutable</key><string>Snowfall</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>CFBundleShortVersionString</key><string>${GITHUB_REF_NAME}</string>
+            <key>LSMinimumSystemVersion</key><string>14.0</string>
+            <key>LSUIElement</key><true/>
+          </dict>
+          </plist>
+          EOF
+          codesign --force --sign - "$APP"
+          ditto -c -k --keepParent "$APP" Snowfall.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Snowfall
+          path: Snowfall.zip
+
+      - name: Release (tylko dla tagów v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" Snowfall.zip --title "Snowfall $GITHUB_REF_NAME" --notes "Pobierz Snowfall.zip, rozpakuj, przenieś do Aplikacji i uruchom \`xattr -cr /Applications/Snowfall.app\`."
