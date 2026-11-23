@@ -24,7 +24,7 @@ Aplikacja działa z paska menu, a kliknięcia przechodzą przez efekty do okien 
 
 ### Opcja A: gotowa aplikacja
 
-1. Wejdź w zakładkę **Releases** (albo **Actions** → ostatni build → *Artifacts*) i pobierz `Snowfall.zip`.
+1. Pobierz `Snowfall.zip` z [najnowszego wydania](https://github.com/matrixxonek/snowfall/releases/latest).
 2. Rozpakuj go i przenieś `Snowfall.app` do folderu **Aplikacje**.
 3. Aplikacja nie jest podpisana certyfikatem Apple, więc przy pierwszym uruchomieniu macOS ją zablokuje. Wpisz w Terminalu:
    ```
@@ -35,7 +35,7 @@ Aplikacja działa z paska menu, a kliknięcia przechodzą przez efekty do okien 
 ### Opcja B: budowanie ze źródeł
 
 ```
-git clone <adres-repo>
+git clone https://github.com/matrixxonek/snowfall.git
 cd snowfall
 bash make-app.sh
 mv Snowfall.app /Applications/
@@ -76,3 +76,7 @@ Wszystko jest w menu pod ikoną płatka śniegu w pasku menu:
 killall Snowfall
 rm -rf /Applications/Snowfall.app
 ```
+
+## Licencja
+
+MIT, zobacz [LICENSE](LICENSE).
